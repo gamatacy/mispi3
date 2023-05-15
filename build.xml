@@ -1,0 +1,99 @@
+<project name="ant-project" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property file="build.properties"/>
+    <property name="final.name" value="project.war"/>
+
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="prepare">
+        <mkdir dir="${classes.build.dir}"/>
+        <mkdir dir="${webapp.build.dir}"/>
+        <mkdir dir="${war.build.dir}"/>
+    </target>
+
+    <target name="resources" depends="prepare">
+        <copydir src="${webapp.src.dir}" dest="${webapp.build.dir}"/>
+        <copydir src="${resources.src.dir}" dest="${resources.build.dir}"/>
+    </target>
+
+    <target name="compile" depends="prepare">
+        <ivy:retrieve
+                pattern="${lib.dir}/[artifact](-[classifier])-[revision].[ext]"/>
+        <ivy:cachepath pathid="ivy.path" conf="default"/>
+        <javac srcdir="${main.src.dir}" sourcepath="" destdir="${classes.build.dir}">
+            <classpath>
+                <path refid="ivy.path"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="build" depends="compile, resources">
+<!--        <javac destdir="build/classes" includeantruntime="false">-->
+<!--            <src path="${war.build.dir}"/>-->
+<!--        </javac>-->
+        <jar destfile="${war.build.dir}/project.jar" basedir="${classes.build.dir}">
+            <manifest>
+                <attribute name="Main–Class" value="${ant.project.name}"/>
+            </manifest>
+        </jar>
+<!--        <javac destdir="build/classes" includeantruntime="false">-->
+<!--            <src path="${test_src}"/>-->
+<!--        </javac>-->
+        <!--<war destfile="${war.build.dir}/${final.name}" basedir="${webapp.build.dir}">
+            <classes dir="${classes.build.dir}"/>
+            <lib dir="${lib.dir}"/>
+        </war>-->
+    </target>
+    <target name="test" depends="build">
+        <mkdir dir="${build.dir}/test-results"/>
+        <junit printsummary="yes" haltonfailure="yes">
+            <classpath>
+                <pathelement location="${junit.jar.path}"/>
+                <pathelement location="${hamcrest.jar.path}"/>
+                <pathelement location="${classes.dir}"/>
+                <pathelement location="${test.dir}"/>
+            </classpath>
+            <formatter type="xml"/>
+            <batchtest fork="yes" todir="${build.dir}/test-results">
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+
+    <target name="scp" depends="build">
+        <scp file="build/out/project.war"
+             todir="s333580@se.ifmo.ru:~/mispi3_lab"
+             password="tROf&#125;9750" trust="true" port="2222"/>
+    </target>
+
+    <target name="native2ascii">
+        <native2ascii src="./src/main/resources" dest="./build/resources"
+                      includes="*.properties" ext=".properties"/>
+    </target>
+
+    <target name="xml">
+        <xmlvalidate failonerror="true">
+            <fileset dir="${src.dir}">
+                <include name="**/*.xml"/>
+            </fileset>
+        </xmlvalidate>
+    </target>
+
+    <target name="history">
+        <!-- Здесь реализация цели "history" -->
+    </target>
+
+    <target name="team">
+        <!-- Здесь реализация цели "team" -->
+    </target>
+
+    <target name="report" depends="test">
+        <!-- Здесь реализация цели "report" -->
+    </target>
+</project>

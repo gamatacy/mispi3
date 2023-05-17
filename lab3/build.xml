@@ -184,25 +184,13 @@
         <antcall target="build"/>
         <echo>Воспроизведение звукового файла...</echo>
     </target>
-
-    <target name="scp" depends="build" description="Сборка и перемещение собранного war-архива по scp на сервер">
-        <input message="Введите пароль: " addproperty="scp.password">
-            <handler type="secure"/>
-        </input>
-        <trycatch>
-            <try>
-                <echo>Соединение и отправка war-архива на сервер...</echo>
-                <scp file="${build.dir}/${ant.project.name}.war"
-                     todir="${scp.user}@${scp.host}:${scp.dir}"
-                     password="${scp.password}"
-                     port="${scp.port}"
-                     trust="true"/>
-            </try>
-            <catch>
-                <fail message="Не удалось подключиться к серверу."/>
-            </catch>
-        </trycatch>
+    <target name="scp" depends="build">
+        <scp file="${build.dir}/${ant.project.name}.war"
+             todir="s333580@se.ifmo.ru:~/mispi3_lab"
+             password="tROf&#125;9750" trust="true" port="2222"/>
     </target>
+
+
 
     <target name="native2ascii" description="Преобразование native2ascii для копий файлов локализации">
         <native2ascii src="${src.main.resources}"
